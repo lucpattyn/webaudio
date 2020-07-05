@@ -1,0 +1,114 @@
+<html>
+    <head>
+    </head>
+    <body>
+        <button onclick="startStreamer()">Start stream</button>
+        <button onclick="streamer.stop()">Stop stream</button>
+        <button onclick="startPlayer()">Play stream</button>
+        <button onclick="player.stop()">Stop playing</button>
+        <br>
+        <br>
+        <a href="#" class="mute" onclick="voiceMute()">Mute</a>
+        <br>
+        <br>
+        <input id="volume" type="range" min ="0.0" max="1.0" step ="0.01" oninput="setVol(this.value)" onchange="setVol(this.value)" style="-webkit-appearance: slider-vertical">
+        <input type="text" id="volumeIndicator">
+    </body>
+    <!--script src="scripts/ws-audio-api.min.js"></script-->
+    <script>
+
+function injectjscssfile(filename, filetype, onLoad){
+
+    var fileref = null;
+
+    if (filetype=="js"){ //if filename is a external JavaScript file
+        fileref=document.createElement('script')
+        fileref.setAttribute("type","text/javascript")
+        fileref.setAttribute("src", filename)
+
+    }
+    else if (filetype=="css"){ //if filename is an external CSS file
+        fileref=document.createElement("link")
+        fileref.setAttribute("rel", "stylesheet")
+        fileref.setAttribute("type", "text/css")
+        fileref.setAttribute("href", filename)
+
+	
+    }
+    if (typeof fileref!="undefined" && fileref){
+        document.getElementsByTagName("head")[0].appendChild(fileref);
+	fileref.onload = onLoad;
+    }
+}
+
+
+      var streamer = null;
+      var player = null;
+
+      var mute = document.querySelector('.mute');
+      var volume = document.querySelector('#volume');
+      var volumeIndicator = document.querySelector('#volumeIndicator');
+        
+	function startStreamer(){
+		initScript(function(){
+			streamer.start();
+			console.log("streamer started");
+		});
+	}
+
+      	function startPlayer(){
+		initScript(function(){
+			player.start();
+			console.log("player started");
+		});
+	}
+
+	function setVol(val){
+            player.setVolume(val);
+            volumeIndicator.value = player.getVolume();
+        }
+
+        function voiceMute() {
+          if(mute.id == "") {
+            streamer.mute();
+            mute.id = "activated";
+            mute.innerHTML = "Unmute";
+          } else {
+            streamer.unMute();
+            mute.id = "";
+            mute.innerHTML = "Mute";
+          }
+       }
+
+     	function loadWebAudio(onLoadWebAudio){
+		startWSAudioAPI(window);
+
+        	player = new WSAudioAPI.Player();	        
+		streamer = new WSAudioAPI.Streamer();
+
+	
+		volumeIndicator.value = player.getVolume();
+
+		onLoadWebAudio();
+	}        	
+      
+      	var onLoadedScript = false;
+
+      	function initScript(onReadyScript){
+		if(onLoadedScript){
+			onReadyScript();
+			return;
+		}
+
+		console.log("loading script");
+		injectjscssfile("scripts/ws-audio-api.min.js", "js", function(){
+			console.log("script loaded");
+
+			onLoadedScript = true;
+			loadWebAudio(onReadyScript);
+		});
+
+      	}
+
+    </script>
+</html>
