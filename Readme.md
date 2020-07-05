@@ -2,7 +2,7 @@ WebSocket Audio/Video API
 ====================
 #### Library to broadcast the sound from the microphone and video from camera through a WebSocket
 
-This library is basically and enhancement over https://github.com/Ivan-Feofanov/ws-audio-api
+This library is basically an enhancement over https://github.com/Ivan-Feofanov/ws-audio-api
 
 This library can work in two ways:  
 
@@ -22,7 +22,7 @@ Works fine in Chrome, Firefox, Edge. Doesn't work in Safari.
   4.  Play audio queue (**Web Audio Api support require**)  
   5.  Get base64 images from broadcasting server
   6.  Assign in to an image source
-      (actually the video is split into two halves and played with two images)
+      (actually the video is split into two halves in streamer and played with two images in player)
 
 Works fine in all browsers  
 
