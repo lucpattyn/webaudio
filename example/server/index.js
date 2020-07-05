@@ -46,9 +46,15 @@ wss.on('connection', function (ws) {
         isMaster = true;
         ws.on('message', function (message) {
             for (var cid in listeners) {
-                listeners[cid].send(message, {
+                /*listeners[cid].send(message, {
                     binary: true
                 }, function (err) {
+                    if (err) {
+                        console.log('Error: ', err);
+                    }
+                });*/
+
+		listeners[cid].send(message, function (err) {
                     if (err) {
                         console.log('Error: ', err);
                     }

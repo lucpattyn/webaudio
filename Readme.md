@@ -1,6 +1,8 @@
-WebSocket Audio API
+WebSocket Audio/Video API
 ====================
-#### Library to broadcast the sound from the microphone through a WebSocket
+#### Library to broadcast the sound from the microphone and video from camera through a WebSocket
+
+This library is basically and enhancement over https://github.com/Ivan-Feofanov/ws-audio-api
 
 This library can work in two ways:  
 
@@ -8,6 +10,8 @@ This library can work in two ways:
   1.  Get user audio from microphone (**getUserMedia support require**)  
   2.  Encode it with Opus codec  
   3.  Send it to websocket server  
+  4.  Get video data from camera through drawing in canvas
+  5.  Send it to websocket server
 
 Works fine in Chrome, Firefox, Edge. Doesn't work in Safari.  
 
@@ -16,6 +20,9 @@ Works fine in Chrome, Firefox, Edge. Doesn't work in Safari.
   2.  Decode it with Opus codec  
   3.  Write it to audio queue  
   4.  Play audio queue (**Web Audio Api support require**)  
+  5.  Get base64 images from broadcasting server
+  6.  Assign in to an image source
+      (actually the video is split into two halves and played with two images)
 
 Works fine in all browsers  
 

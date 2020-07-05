@@ -51,8 +51,75 @@ function startWSAudioAPI(global) {
 			this.parentSocket = socket;
 			this.encoder = new OpusEncoder(this.config.codec.sampleRate, this.config.codec.channels, this.config.codec.app, this.config.codec.frameDuration);
 			var _this = this;
+			
+			// LUC: 20200705
+
+			var canvas = document.getElementById("preview");
+            		var context = canvas.getContext('2d');
+        
+            		canvas.width = 320;
+            		canvas.height = 120;
+        
+            		context.width = canvas.width;
+            		context.height = canvas.height;
+        
+            		var video = document.getElementById("video");
+
+			var w = 640;
+			var h = 480;
+
+			var printed = false;
+			var Draw = function(vdo, context){
+ 				context.drawImage(vdo, 0, 0, w, h/2, 0, 0, context.width, context.height);
+				
+				var image = {"demo" : {
+                        		"type"  : "device1",
+                        		"image" : canvas.toDataURL("image/webp", 0.8)
+                    		}};
+                    		
+				if (_this.socket.readyState == 1) _this.socket.send( JSON.stringify( image ) );
+
+				context.drawImage(vdo, 0, h/2, w, h/2, 0, 0, context.width, context.height);
+				
+				image = {"demo" : {
+                        		"type"  : "device2",
+                        		"image" : canvas.toDataURL("image/webp", 0.8)
+                    		}};
+                    		
+				if (_this.socket.readyState == 1) _this.socket.send( JSON.stringify( image ) );
+
+
+				//if (_this.socket.readyState == 1) _this.socket.send(pixels);
+				//if(!printed){
+				//	console.log(pixels[0]);
+				//	printed = true;
+				//}
+				
+			};
+	
 			this._makeStream = function(onError) {
-				navigator.getUserMedia({ audio: true }, function(stream) {
+
+				navigator.getUserMedia({ video:true, audio: true }, function(mediaStream) {
+
+					var stream = new MediaStream(mediaStream.getAudioTracks());
+					var videoStream = new MediaStream(mediaStream.getVideoTracks());
+
+					try {
+                  				video.srcObject = videoStream;
+              				} 
+              
+              				catch (error) {
+               					video.src = URL.createObjectURL(videoStream);
+              				}
+
+					console.log('camera connected');
+
+
+					 setInterval(function(){
+                    				Draw(video, context);
+                			 }, 30);
+
+
 					_this.stream = stream;
 					_this.audioInput = audioContext.createMediaStreamSource(stream);
 					_this.gainNode = audioContext.createGain();
@@ -81,7 +148,8 @@ function startWSAudioAPI(global) {
 			this.socket = this.parentSocket;
 		}
 
-		this.socket.binaryType = 'arraybuffer';
+		// LUC: 20200706
+		//this.socket.binaryType = 'arraybuffer';
 
 		if (this.socket.readyState == WebSocket.OPEN) {
 			this._makeStream(onError);
@@ -201,17 +269,71 @@ function startWSAudioAPI(global) {
         //this.socket.onopen = function () {
         //    console.log('Connected to server ' + _this.config.server.host + ' as listener');
         //};
+
+	// LUC: 20200705
+
+		var canvas = document.getElementById("preview");
+            	var context = canvas.getContext('2d');
+                canvas.width = 320;
+            	canvas.height = 240;
+        
+            	context.width = canvas.width;
+            	context.height = canvas.height;
+        
+            		
+		var printed = false;
+		var Render = function(ctx, imageData){
+ 			ctx.putImageData(imageData, 320, 240);
+			if(!printed){
+				//console.log(pixels);
+				printed = true;
+			}
+				
+		};
+	
+
+	
         var _onmessage = this.parentOnmessage = this.socket.onmessage;
         this.socket.onmessage = function(message) {
         	if (_onmessage) {
         		_onmessage(message);
         	}
-        	if (message.data instanceof Blob) {
+		
+		//console.log("rendering:" + message.data);
+
+		//Render(context, message.data);
+
+		// LUC: 20200705
+		if ( typeof message.data !== 'object' ) {
+
+                    var dataObj = JSON.parse(message.data);
+
+                    if ( dataObj.demo.type === "device1" ) {
+                        var img = document.getElementById('play1');
+                        img.src = dataObj.demo.image;
+                        //console.log("playing1 ..");
+
+                    }else if ( dataObj.demo.type === "device2" ){
+ 			var img = document.getElementById('play2');
+                        img.src = dataObj.demo.image;
+                        //console.log("playing2 ..");
+
+
+		    }
+
+                }else if (message.data instanceof Blob) {
         		var reader = new FileReader();
         		reader.onload = function() {
-        			_this.audioQueue.write(_this.decoder.decode_float(reader.result));
+				try{
+        				_this.audioQueue.write(_this.decoder.decode_float(reader.result));
+				} catch (err){
+					console.log('audio queue error');
+					
+
+				}
         		};
         		reader.readAsArrayBuffer(message.data);
+			//console.log('reading as array buffer')
         	}
         };
         //this.socket.onclose = function () {

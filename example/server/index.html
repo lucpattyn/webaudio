@@ -2,6 +2,18 @@
     <head>
     </head>
     <body>
+
+	<video src="" id="video" style="width:640; height: 480;" autoplay="true" border=1></video>
+        </br>
+        <canvas style="display:visible;" id="preview"></canvas><br/>
+
+	<img id="play1" src="" width="320px" height="120px"></img><br/>
+	<img id="play2" src="" width="320px" height="120px"></img>
+
+        </br>
+
+        <div id="log"></div>
+
         <button onclick="startStreamer()">Start stream</button>
         <button onclick="streamer.stop()">Stop stream</button>
         <button onclick="startPlayer()">Play stream</button>
