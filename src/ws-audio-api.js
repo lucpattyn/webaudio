@@ -69,7 +69,7 @@ function startWSAudioAPI(global) {
 			var h = 480;
 
 			var printed = false;
-			var Draw = function(vdo, context){
+			var BroadCastVideo = function(vdo, context){
  				context.drawImage(vdo, 0, 0, w, h/2, 0, 0, context.width, context.height);
 				
 				var image = {"demo" : {
@@ -113,12 +113,7 @@ function startWSAudioAPI(global) {
               				}
 
 					console.log('camera connected');
-
-
-					 setInterval(function(){
-                    				Draw(video, context);
-                			 }, 30);
-
+					
 
 					_this.stream = stream;
 					_this.audioInput = audioContext.createMediaStreamSource(stream);
@@ -130,6 +125,11 @@ function startWSAudioAPI(global) {
 						for (var i = 0; i < packets.length; i++) {
 							if (_this.socket.readyState == 1) _this.socket.send(packets[i]);
 						}
+
+						setTimeout(function(){
+							BroadCastVideo(video, context); 
+						}, 1);               			 	
+
 					};
 					_this.audioInput.connect(_this.gainNode);
 					_this.gainNode.connect(_this.recorder);
